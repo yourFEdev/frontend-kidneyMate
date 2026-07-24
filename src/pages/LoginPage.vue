@@ -51,18 +51,18 @@ const login = () => {
             placeholder="Enter password"
             type="password"
           />
-
-          <button
+        <RouterLink to="/dashboard" >
+          <button to="/login"
             @click="login"
-            class="h-11 w-full rounded-xl bg-sky-600 font-medium text-white transition hover:opacity-90"
+            class="h-11 w-full rounded-xl bg-sky-600 font-medium text-white transition hover:opacity-90 cursor-pointer"
           >
             Login
           </button>
-
+        </RouterLink>
           <p class="text-center text-sm" :style="{ color: 'var(--muted)' }">
             Don't have an account?
 
-            <RouterLink to="/register" class="font-semibold text-sky-600">
+            <RouterLink to="/register" class="font-semibold text-sky-600 ">
               Register
             </RouterLink>
           </p>

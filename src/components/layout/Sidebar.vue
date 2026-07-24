@@ -73,30 +73,30 @@ const menus = [
 <template>
   <!-- Overlay Mobile -->
   <Transition name="fade">
-  <div
-    v-if="layout.mobileSidebar"
-    class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
-    @click="layout.closeMobileSidebar"
-  />
-</Transition>
+    <div
+      v-if="layout.mobileSidebar"
+      class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+      @click="layout.closeMobileSidebar"
+    />
+  </Transition>
 
   <!-- Sidebar -->
   <aside
-  :class="[
-    'fixed lg:relative z-50 m-4 flex h-[calc(100vh-2rem)] flex-col rounded-3xl border transition-all duration-300 ease-in-out',
-    layout.sidebarOpen ? 'lg:w-72' : 'lg:w-20',
-    'w-72',
-    layout.mobileSidebar
-      ? 'translate-x-0'
-      : '-translate-x-[120%] lg:translate-x-0'
-  ]"
-  :style="{
-    background: 'var(--sidebar)',
-    borderColor: 'var(--sidebar-border)',
-    boxShadow: 'var(--shadow)',
-    backdropFilter: 'blur(18px)',
-  }"
->
+    :class="[
+      'fixed lg:relative z-50 m-4 flex h-[calc(100vh-2rem)] flex-col rounded-3xl border transition-all duration-300 ease-in-out',
+      layout.sidebarOpen ? 'lg:w-72' : 'lg:w-20',
+      'w-72',
+      layout.mobileSidebar
+        ? 'translate-x-0'
+        : '-translate-x-[120%] lg:translate-x-0',
+    ]"
+    :style="{
+      background: 'var(--sidebar)',
+      borderColor: 'var(--sidebar-border)',
+      boxShadow: 'var(--shadow)',
+      backdropFilter: 'blur(18px)',
+    }"
+  >
     <!-- Logo -->
     <div
       class="flex items-center border-b p-4"
@@ -106,17 +106,11 @@ const menus = [
         class="flex h-12 w-12 items-center justify-center rounded-2xl"
         :style="{ background: 'var(--primary-soft)' }"
       >
-        <Heart
-          class="h-6 w-6"
-          :style="{ color: 'var(--primary)' }"
-        />
+        <Heart class="h-6 w-6" :style="{ color: 'var(--primary)' }" />
       </div>
 
       <Transition name="fade">
-        <div
-          v-if="layout.sidebarOpen"
-          class="ml-4"
-        >
+        <div v-if="layout.sidebarOpen" class="ml-4">
           <h2
             class="text-lg font-semibold"
             :style="{ color: 'var(--foreground)' }"
@@ -124,10 +118,7 @@ const menus = [
             KidneyMate
           </h2>
 
-          <p
-            class="text-sm"
-            :style="{ color: 'var(--muted)' }"
-          >
+          <p class="text-sm" :style="{ color: 'var(--muted)' }">
             Dialysis Companion
           </p>
         </div>
@@ -136,11 +127,7 @@ const menus = [
 
     <!-- Menu -->
     <div class="flex-1 overflow-y-auto px-3 py-5">
-      <div
-        v-for="group in menus"
-        :key="group.group"
-        class="mb-6"
-      >
+      <div v-for="group in menus" :key="group.group" class="mb-6">
         <Transition name="fade">
           <p
             v-if="layout.sidebarOpen"
@@ -165,31 +152,20 @@ const menus = [
     </div>
 
     <!-- Footer -->
-    <div
-      class="border-t p-3"
-      :style="{ borderColor: 'var(--border)' }"
-    >
-      
-
-      <!-- Logout -->
+    <div class="border-t p-3" :style="{ borderColor: 'var(--border)' }">
       <button
         class="cursor-pointer flex h-12 w-full items-center rounded-2xl transition-all hover:bg-red-50 dark:hover:bg-red-950/40"
-        :class="
-          layout.sidebarOpen
-            ? 'justify-start px-4'
-            : 'justify-center'
-        "
+        :class="layout.sidebarOpen ? 'justify-start px-4' : 'justify-center'"
         :style="{ color: '#ef4444' }"
       >
         <LogOut class="h-5 w-5 shrink-0" />
 
         <Transition name="fade">
-          <span
-            v-if="layout.sidebarOpen"
-            class="ml-3 font-medium"
-          >
-            Logout
-          </span>
+         
+           <router-link to="/login" v-if="layout.sidebarOpen" class="ml-3 font-medium text-[var(--muted)]">
+              Logout
+            </router-link>
+         
         </Transition>
       </button>
     </div>
@@ -199,7 +175,7 @@ const menus = [
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity .2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .fade-enter-from,
