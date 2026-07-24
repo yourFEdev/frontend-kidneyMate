@@ -7,127 +7,203 @@ import {
   ChartSpline,
   FileText,
   Settings,
-} from "lucide-vue-next"
+  LogOut,
+  Heart,
+} from "lucide-vue-next";
 
 import SidebarItem from "./SidebarItem.vue";
-import ThemeToggle from "../common/ThemeToggle.vue";
+import { useLayoutStore } from "../../stores/layout.ts";
+
+const layout = useLayoutStore();
 
 const menus = [
   {
-    title: "Dashboard",
-    to: "/dashboard",
-    icon: LayoutDashboard,
+    group: "Health",
+    items: [
+      {
+        title: "Dashboard",
+        to: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        title: "Fluid",
+        to: "/fluid",
+        icon: Droplets,
+      },
+      {
+        title: "Blood Pressure",
+        to: "/blood-pressure",
+        icon: HeartPulse,
+      },
+      {
+        title: "Schedule",
+        to: "/schedule",
+        icon: CalendarDays,
+      },
+    ],
   },
   {
-    title: "Fluid",
-    to: "/fluid",
-    icon: Droplets,
+    group: "Analytics",
+    items: [
+      {
+        title: "Insights",
+        to: "/insights",
+        icon: ChartSpline,
+      },
+      {
+        title: "Reports",
+        to: "/reports",
+        icon: FileText,
+      },
+    ],
   },
   {
-    title: "Blood Pressure",
-    to: "/pressure",
-    icon: HeartPulse,
+    group: "System",
+    items: [
+      {
+        title: "Settings",
+        to: "/settings",
+        icon: Settings,
+      },
+    ],
   },
-  {
-    title: "Schedule",
-    to: "/schedule",
-    icon: CalendarDays,
-  },
-  {
-    title: "Insight",
-    to: "/insight",
-    icon: ChartSpline,
-  },
-  {
-    title: "Reports",
-    to: "/reports",
-    icon: FileText,
-  },
-  {
-    title: "Settings",
-    to: "/settings",
-    icon: Settings,
-  },
-]
+];
 </script>
 
 <template>
-  <aside
-    class="flex w-[290px] flex-col  border p-6"
-    style="
-      background: var(--surface);
-      border-color: var(--border);
-      box-shadow: var(--shadow);
-    "
-  >
-   <div class="flex items-center gap-4">
+  <!-- Overlay Mobile -->
+  <Transition name="fade">
   <div
-    class="flex h-14 w-14 items-center justify-center  text-white font-bold"
-    style="background:linear-gradient(135deg,var(--primary),var(--secondary));"
-  >
-    K
-  </div>
+    v-if="layout.mobileSidebar"
+    class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+    @click="layout.closeMobileSidebar"
+  />
+</Transition>
 
-  <div>
-    <h2 class="text-xl font-bold">Kidney Mate</h2>
-    <p class="text-sm" style="color:var(--muted)">
-      Daily Health Partner
-    </p>
-  </div>
-</div>
-
+  <!-- Sidebar -->
+  <aside
+  :class="[
+    'fixed lg:relative z-50 m-4 flex h-[calc(100vh-2rem)] flex-col rounded-3xl border transition-all duration-300 ease-in-out',
+    layout.sidebarOpen ? 'lg:w-72' : 'lg:w-20',
+    'w-72',
+    layout.mobileSidebar
+      ? 'translate-x-0'
+      : '-translate-x-[120%] lg:translate-x-0'
+  ]"
+  :style="{
+    background: 'var(--sidebar)',
+    borderColor: 'var(--sidebar-border)',
+    boxShadow: 'var(--shadow)',
+    backdropFilter: 'blur(18px)',
+  }"
+>
+    <!-- Logo -->
     <div
-      class="my-6 h-px"
-      style="background:var(--border)"
-    />
-
-    <div class="flex flex-col gap-2">
-      <SidebarItem
-        v-for="item in menus"
-        :key="item.to"
-        v-bind="item"
-      />
-    </div>
-
-    <div class="mt-auto">
+      class="flex items-center border-b p-4"
+      :style="{ borderColor: 'var(--border)' }"
+    >
       <div
-        class="my-6 h-px"
-        style="background:var(--border)"
-      />
-
-      <div class="flex items-center justify-between">
-        <span
-          class="font-medium"
-          style="color:var(--muted)"
-        >
-          Theme
-        </span>
-
-        <ThemeToggle />
+        class="flex h-12 w-12 items-center justify-center rounded-2xl"
+        :style="{ background: 'var(--primary-soft)' }"
+      >
+        <Heart
+          class="h-6 w-6"
+          :style="{ color: 'var(--primary)' }"
+        />
       </div>
 
-      <div
-        class="mt-6 flex items-center gap-3 rounded-2xl p-3 transition-all hover:translate-y-[-2px]"
-        style="background:var(--background)"
-      >
-        <img
-          src="https://i.pravatar.cc/100"
-          class="h-12 w-12 rounded-full"
-        />
-
-        <div>
-          <h4 class="font-semibold">
-            Andre Eka
-          </h4>
+      <Transition name="fade">
+        <div
+          v-if="layout.sidebarOpen"
+          class="ml-4"
+        >
+          <h2
+            class="text-lg font-semibold"
+            :style="{ color: 'var(--foreground)' }"
+          >
+            KidneyMate
+          </h2>
 
           <p
             class="text-sm"
-            style="color:var(--muted)"
+            :style="{ color: 'var(--muted)' }"
           >
-            Frontend Developer
+            Dialysis Companion
           </p>
+        </div>
+      </Transition>
+    </div>
+
+    <!-- Menu -->
+    <div class="flex-1 overflow-y-auto px-3 py-5">
+      <div
+        v-for="group in menus"
+        :key="group.group"
+        class="mb-6"
+      >
+        <Transition name="fade">
+          <p
+            v-if="layout.sidebarOpen"
+            class="mb-3 px-3 text-xs font-semibold uppercase tracking-widest"
+            :style="{ color: 'var(--muted)' }"
+          >
+            {{ group.group }}
+          </p>
+        </Transition>
+
+        <div class="space-y-1">
+          <SidebarItem
+            v-for="item in group.items"
+            :key="item.to"
+            :title="item.title"
+            :to="item.to"
+            :icon="item.icon"
+            :collapsed="!layout.sidebarOpen"
+          />
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <div
+      class="border-t p-3"
+      :style="{ borderColor: 'var(--border)' }"
+    >
+      
+
+      <!-- Logout -->
+      <button
+        class="cursor-pointer flex h-12 w-full items-center rounded-2xl transition-all hover:bg-red-50 dark:hover:bg-red-950/40"
+        :class="
+          layout.sidebarOpen
+            ? 'justify-start px-4'
+            : 'justify-center'
+        "
+        :style="{ color: '#ef4444' }"
+      >
+        <LogOut class="h-5 w-5 shrink-0" />
+
+        <Transition name="fade">
+          <span
+            v-if="layout.sidebarOpen"
+            class="ml-3 font-medium"
+          >
+            Logout
+          </span>
+        </Transition>
+      </button>
+    </div>
   </aside>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

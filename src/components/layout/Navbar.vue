@@ -1,54 +1,76 @@
 <script setup lang="ts">
-import { Bell, Search } from "lucide-vue-next"
-import ThemeToggle from "../common/ThemeToggle.vue";
+import {
+  Menu,
+  Moon,
+  Sun,
+  CircleUserRound,
+} from "lucide-vue-next";
+
+import { useLayoutStore } from "../../stores/layout";
+import { useThemeStore } from "../../stores/theme";
+
+const layout = useLayoutStore();
+const theme = useThemeStore();
 </script>
 
 <template>
   <header
-    class="flex h-26 items-center justify-between border px-6"
-    style="
-      background:var(--surface);
-      border-color:var(--border);
-      box-shadow:var(--shadow);
-    "
+    class="sticky top-4 z-30 mx-4 mt-4 flex h-18 items-center justify-between rounded-3xl border px-6 backdrop-blur-xl"
+    :style="{
+      background: 'var(--sidebar)',
+      borderColor: 'var(--sidebar-border)',
+      boxShadow: 'var(--shadow)',
+      backdropFilter: 'blur(18px)',
+    }"
+   
   >
-    <div>
-      <h1 class="text-2xl font-bold">
-        Dashboard
-      </h1>
-
-     
-    </div>
-
+    <!-- Left -->
     <div class="flex items-center gap-4">
-      <div
-        class="flex h-12 w-[280px] items-center gap-3 rounded-2xl px-4"
-        style="background:var(--background)"
-      >
-        <Search
-          :size="18"
-          style="color:var(--muted)"
-        />
-
-        <input
-          placeholder="Search..."
-          class="flex-1 bg-transparent outline-none"
-        />
-      </div>
-
-      <ThemeToggle />
-
       <button
-        class="flex h-12 w-12 items-center justify-center rounded-2xl transition hover:scale-105"
-        style="background:var(--background)"
+        class="flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-[var(--surface-2)] cursor-pointer"
+        @click="layout.toggleSidebar"
       >
-        <Bell :size="20" />
+        <Menu class="h-5 w-5" />
       </button>
-
-      <img
-        src="https://i.pravatar.cc/100"
-        class="h-12 w-12 rounded-full"
-      />
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        class="flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-[var(--surface-2)] cursor-pointer"
+        @click="theme.toggle()"
+      >
+        <Sun
+          v-if="theme.dark"
+          class="h-5 w-5 text-[var(--muted)]"
+        />
+        <Moon
+          v-else
+          class="h-5 w-5 text-[var(--muted)]"
+        />
+      </button>
+      <button
+        class="flex items-center gap-3 rounded-2xl p-1 pr-3 transition hover:bg-[var(--surface-2)]"
+      >
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-full"
+          :style="{ background:'var(--primary-soft)' }"
+        >
+          <CircleUserRound
+            class="h-6 w-6"
+            :style="{ color:'var(--primary)' }"
+          />
+        </div>
+        <div class="hidden md:block text-left">
+          <h4 class="font-medium text-[var(--muted)]">
+            Andre
+          </h4>
+          <p
+            class="text-xs"
+            :style="{ color:'var(--muted)' }"
+          >
+            andre@mail.com
+          </p>
+        </div>
+      </button>
     </div>
   </header>
 </template>

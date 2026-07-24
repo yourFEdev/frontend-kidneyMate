@@ -19,28 +19,28 @@ const router = createRouter({
           component: () => import("../pages/DashboardPage.vue"),
         },
         {
-          path: "notes",
-          component: () => import("../pages/DashboardPage.vue"),
+          path: "fluid",
+          component: () => import("../pages/FluidPage.vue"),
         },
         {
-          path: "insight",
-          component: () => import("../pages/DashboardPage.vue"),
+          path: "blood-pressure",
+          component: () => import("../pages/BloodPressurePage.vue"),
         },
         {
           path: "schedule",
-          component: () => import("../pages/DashboardPage.vue"),
+          component: () => import("../pages/SchedulePage.vue"),
+        },
+        {
+          path: "insights",
+          component: () => import("../pages/InsightPage.vue"),
         },
         {
           path: "reports",
-          component: () => import("../pages/DashboardPage.vue"),
-        },
-        {
-          path: "profile",
-          component: () => import("../pages/DashboardPage.vue"),
+          component: () => import("../pages/ReportPage.vue"),
         },
         {
           path: "settings",
-          component: () => import("../pages/DashboardPage.vue"),
+          component: () => import("../pages/SettingPage.vue"),
         },
       ],
     },

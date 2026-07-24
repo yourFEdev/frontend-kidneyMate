@@ -1,29 +1,34 @@
 import { defineStore } from "pinia";
+import { ref, watch } from "vue";
 
 type Theme = "light" | "dark";
 
-export const useThemeStore = defineStore("theme", {
-  state: () => ({
-    theme: (localStorage.getItem("theme") as Theme) || "light",
-  }),
+export const useThemeStore = defineStore("theme", () => {
+  const dark = ref(
+    localStorage.getItem("theme")
+      ? localStorage.getItem("theme") === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
 
-  actions: {
-    init() {
-      document.documentElement.classList.toggle(
-        "dark",
-        this.theme === "dark"
-      );
-    },
+  function applyTheme() {
+    document.documentElement.classList.toggle("dark", dark.value);
 
-    toggle() {
-      this.theme = this.theme === "light" ? "dark" : "light";
+    localStorage.setItem(
+      "theme",
+      dark.value ? "dark" : "light"
+    );
+  }
 
-      localStorage.setItem("theme", this.theme);
+  function toggle() {
+    dark.value = !dark.value;
+  }
 
-      document.documentElement.classList.toggle(
-        "dark",
-        this.theme === "dark"
-      );
-    },
-  },
+  watch(dark, applyTheme);
+
+  applyTheme();
+
+  return {
+    dark,
+    toggle,
+  };
 });

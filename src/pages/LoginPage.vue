@@ -1,30 +1,73 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { RouterLink } from "vue-router";
+import { HeartPulse } from "lucide-vue-next";
+
+import BaseCard from "../components/common/BaseCard.vue";
+import BaseInput from "../components/common/BaseInput.vue";
+
+const email = ref("");
+const password = ref("");
+
+const login = () => {
+  console.log(email.value, password.value);
+};
+</script>
+
 <template>
-  <div class="w-full max-w-md rounded-3xl bg-white p-10 shadow">
-    <h1 class="mb-2 text-3xl font-bold">
-        Welcome back 👋
-    </h1>
+  <div class="flex min-h-screen items-center justify-center px-5 w-[600px]">
+    <div class="w-full max-w-md">
+      <BaseCard>
+        <div class="space-y-6">
+          <div class="text-center">
+            <div
+              class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sky-100"
+            >
+              <HeartPulse class="text-sky-600" :size="30" />
+            </div>
 
-    <p class="mb-8 text-slate-500">
-      Login to Kidney Mate
-    </p>
+            <h1
+              class="text-3xl font-bold"
+              :style="{ color: 'var(--foreground)' }"
+            >
+              Welcome Back
+            </h1>
 
-    <div class="space-y-4">
-      <input
-        placeholder="Email"
-        class="w-full rounded-xl border p-3"
-      />
+            <p class="mt-2" :style="{ color: 'var(--muted)' }">
+              Login to your KidneyMate account.
+            </p>
+          </div>
 
-      <input
-        type="password"
-        placeholder="Password"
-        class="w-full rounded-xl border p-3"
-      />
+          <BaseInput
+            v-model="email"
+            label="Email"
+            placeholder="Enter your email"
+            type="email"
+          />
 
-      <button
-        class="w-full rounded-xl bg-indigo-600 py-3 text-white"
-      >
-        Login
-      </button>
+          <BaseInput
+            v-model="password"
+            label="Password"
+            placeholder="Enter password"
+            type="password"
+          />
+
+          <button
+            @click="login"
+            class="h-11 w-full rounded-xl bg-sky-600 font-medium text-white transition hover:opacity-90"
+          >
+            Login
+          </button>
+
+          <p class="text-center text-sm" :style="{ color: 'var(--muted)' }">
+            Don't have an account?
+
+            <RouterLink to="/register" class="font-semibold text-sky-600">
+              Register
+            </RouterLink>
+          </p>
+        </div>
+      </BaseCard>
     </div>
   </div>
 </template>
