@@ -1,12 +1,13 @@
 import { storeToRefs } from "pinia";
 import { useThemeStore } from "../../stores/theme";
+
 export function useTheme() {
   const store = useThemeStore();
 
-  const { theme } = storeToRefs(store);
+  const { dark } = storeToRefs(store);
 
   return {
-    theme,
+    dark,
     toggleTheme: store.toggle,
   };
 }

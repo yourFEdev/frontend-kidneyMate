@@ -9,7 +9,6 @@ import {
   CircleAlert,
 } from "lucide-vue-next";
 import Chart from "../components/common/Chart.vue";
-
 </script>
 <template>
   <div class="space-y-6 p-4 text-[var(--muted)]">
@@ -65,9 +64,7 @@ import Chart from "../components/common/Chart.vue";
       </BaseCard>
       <BaseCard class="lg:col-span-2">
         <GlassWater class="mb-6 h-8 w-8 text-blue-500" />
-
         <p class="text-sm text-[var(--muted)]">Remaining</p>
-
         <h2 class="mt-2 text-3xl font-bold">800 ml</h2>
       </BaseCard>
       <BaseCard class="lg:col-span-2">
@@ -122,7 +119,6 @@ import Chart from "../components/common/Chart.vue";
           <Chart/>
         </div>
       </BaseCard>
-
       <BaseCard class="lg:col-span-4" title="Daily Tips">
         <div class="space-y-4">
           <div
@@ -131,14 +127,12 @@ import Chart from "../components/common/Chart.vue";
           >
             💧 Drink slowly instead of consuming a large amount at once.
           </div>
-
           <div
             class="rounded-xl p-4"
             :style="{ background: 'var(--surface-2)' }"
           >
             🍉 Fruits also contribute to fluid intake.
           </div>
-
           <div
             class="rounded-xl p-4"
             :style="{ background: 'var(--surface-2)' }"
