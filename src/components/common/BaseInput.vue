@@ -1,49 +1,36 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import Input from "../ui/input/Input.vue";
-
-const props = defineProps<{
-  label?: string;
-  modelValue?: string;
-  placeholder?: string;
+interface Props {
+  modelValue?: string | number;
   type?: string;
-  error?: string;
-}>();
+  placeholder?: string;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: "text",
+  placeholder: "",
+  disabled: false,
+});
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
+  "update:modelValue": [value: string | number];
 }>();
-
-const value = computed({
-  get: () => props.modelValue,
-  set: (v) => emit("update:modelValue", v ?? ""),
-});
 </script>
 
 <template>
-  <div class="space-y-2">
-
-    <label
-      v-if="label"
-      class="text-sm font-medium"
-      :style="{ color: 'var(--foreground)' }"
-    >
-      {{ label }}
-    </label>
-
-    <Input
-      v-model="value"
-      :type="type ?? 'text'"
-      :placeholder="placeholder"
-      class="h-11 rounded-xl"
-    />
-
-    <p
-      v-if="error"
-      class="text-sm text-red-500"
-    >
-      {{ error }}
-    </p>
-
-  </div>
+  <input
+    :value="modelValue"
+    :type="type"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    @input="
+      emit('update:modelValue', ($event.target as HTMLInputElement).value)
+    "
+    class="h-11 w-full rounded-xl border px-4 text-sm outline-none transition-all focus:ring-2 disabled:opacity-50"
+    :style="{
+      background: 'var(--surface-2)',
+      borderColor: 'var(--border)',
+      color: 'var(--foreground)',
+    }"
+  />
 </template>

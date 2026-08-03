@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import BaseCard from "../components/common/BaseCard.vue";
-
-import Button from "../components/ui/button/Button.vue";
-import Input from "../components/ui/input/Input.vue";
-import Chart from "../components/common/Chart.vue";
-
-
-import {
-  Table,
-  TableHeader,
-  TableHead,
-  TableRow,
-  TableBody,
-  TableCell,
-} from "../components/ui/table/index.ts";
-
+import { ref, onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import { toast } from "vue-sonner";
 import {
   HeartPulse,
   Activity,
@@ -22,39 +9,142 @@ import {
   Clock3,
   Plus,
   Info,
+  Pencil,
+  Trash2,
 } from "lucide-vue-next";
+
+import {
+  StatSkeleton,
+  TableSkeleton,
+  ChartSkeleton,
+  HeaderSkeleton,
+} from "../components/skeleton";
+import Chart from "../components/charts/Chart.vue";
+import {
+  BaseCard,
+  BaseButton,
+  BaseDialog,
+  BaseFormField,
+  BaseInput,
+  BaseHeader,
+} from "../components/common/";
+
+import { useBloodPressureStore } from "../stores/bloodPressure.store";
+const bpStore = useBloodPressureStore();
+
+const {
+  bloodPressures,
+  latest,
+  todayCount,
+  chartData,
+  latestMeasuredTime,
+  loading,
+} = storeToRefs(bpStore);
+
+const showDialog = ref(false);
+const showDeleteDialog = ref(false);
+
+const editMode = ref(false);
+const selectedId = ref<number | null>(null);
+
+const form = ref({
+  systolic: "",
+  diastolic: "",
+  pulse: "",
+  measured_at: "",
+});
+
+onMounted(() => {
+  bpStore.getBloodPressures();
+});
+
+function resetForm() {
+  form.value = {
+    systolic: "",
+    diastolic: "",
+    pulse: "",
+    measured_at: "",
+  };
+
+  editMode.value = false;
+  selectedId.value = null;
+}
+
+function openCreate() {
+  resetForm();
+  form.value.measured_at = new Date().toISOString().slice(0, 16);
+  showDialog.value = true;
+}
+
+function openEdit(item: any) {
+  editMode.value = true;
+  selectedId.value = item.id;
+
+  form.value = {
+    systolic: String(item.systolic),
+    diastolic: String(item.diastolic),
+    pulse: String(item.pulse),
+    measured_at: new Date(item.measured_at).toISOString().slice(0, 16),
+  };
+
+  showDialog.value = true;
+}
+const isSaving = ref(false);
+
+async function handleSave() {
+  isSaving.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  try {
+    const payload = {
+      systolic: Number(form.value.systolic),
+      diastolic: Number(form.value.diastolic),
+      pulse: Number(form.value.pulse),
+      measured_at: form.value.measured_at,
+    };
+
+    if (editMode.value && selectedId.value !== null) {
+      await bpStore.updateBloodPressure(selectedId.value, payload);
+      toast.success("Update Success");
+    } else {
+      await bpStore.createBloodPressure(payload);
+      toast.success("Create Success");
+    }
+    showDialog.value = false;
+    resetForm();
+  } finally {
+    isSaving.value = false;
+  }
+}
+
+function openDeleteDialog(id: number) {
+  selectedId.value = id;
+  showDeleteDialog.value = true;
+}
+
+async function handleDelete() {
+  if (selectedId.value === null) return;
+
+  await bpStore.deleteBloodPressure(selectedId.value);
+  toast.success("Delete Success");
+  showDeleteDialog.value = false;
+  selectedId.value = null;
+}
 </script>
 
 <template>
-  <div class="space-y-6 p-4 text-[var(--muted)]">
+  <div class="space-y-8 text-[var(--muted)]">
     <!-- Header -->
-    <section
-      class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-    >
-      <div>
-        <h2 class="text-3xl font-bold" :style="{ color: 'var(--foreground)' }">
-          Blood Pressure
-        </h2>
-
-        <p :style="{ color: 'var(--muted)' }">
-          Track and monitor your blood pressure readings.
-        </p>
-      </div>
-
-      <Button class="rounded-2xl">
-        <Plus class="mr-2 h-4 w-4" />
-
-        Add Record
-      </Button>
-    </section>
-
+    <HeaderSkeleton v-if="loading" />
+    <BaseHeader
+      title="Blood Pressure"
+      subtitle="Track and monitor your blood pressure readings."
+      v-else
+    />
     <!-- Summary -->
-
-    <section class="grid gap-6 lg:grid-cols-12">
-      <!-- Latest -->
-
+    <StatSkeleton v-if="loading" />
+    <section class="grid gap-6 lg:grid-cols-12" v-else>
       <BaseCard class="lg:col-span-6" title="Latest Reading">
-        <div class="space-y-6">
+        <div class="space-y-2">
           <div class="flex items-center gap-4">
             <div
               class="flex h-14 w-14 items-center justify-center rounded-2xl"
@@ -65,22 +155,15 @@ import {
                 :style="{ color: 'var(--primary)' }"
               />
             </div>
-
             <div>
-              <h2 class="text-5xl font-bold">118 / 78</h2>
-
-              <p :style="{ color: 'var(--muted)' }">Recorded today at 08:15</p>
-            </div>
-          </div>
-
-          <div
-            class="rounded-2xl p-4"
-            :style="{ background: 'var(--primary-soft)' }"
-          >
-            <div class="flex items-center gap-2">
-              <CircleCheck class="h-5 w-5 text-green-500" />
-
-              <span class="font-medium"> Normal Blood Pressure </span>
+              <h2 class="text-5xl font-bold">
+                {{ latest?.systolic ?? "-" }}
+                /
+                {{ latest?.diastolic ?? "-" }}
+              </h2>
+              <p :style="{ color: 'var(--muted)' }" class="px-2">
+                Recorded at {{ latestMeasuredTime }}
+              </p>
             </div>
           </div>
         </div>
@@ -90,10 +173,8 @@ import {
 
       <BaseCard class="lg:col-span-2">
         <Activity class="mb-5 h-8 w-8 text-red-500" />
-
         <p class="text-sm text-[var(--muted)]">Pulse</p>
-
-        <h2 class="mt-2 text-3xl font-bold">74 bpm</h2>
+        <h2 class="mt-2 text-3xl font-bold">{{ latest?.pulse ?? "-" }} bpm</h2>
       </BaseCard>
 
       <!-- Status -->
@@ -113,98 +194,132 @@ import {
 
         <p class="text-sm text-[var(--muted)]">Today's Records</p>
 
-        <h2 class="mt-2 text-3xl font-bold">3</h2>
+        <h2 class="mt-2 text-3xl font-bold">
+          {{ todayCount }}
+        </h2>
       </BaseCard>
     </section>
-
-    <!-- CRUD -->
-
+    <!-- Table -->
+    <TableSkeleton v-if="loading" />
     <BaseCard
       title="Blood Pressure History"
       description="All blood pressure records"
+      v-else
     >
-      <div class="mb-6 flex flex-col gap-4 md:flex-row md:justify-between">
-        <Input class="max-w-sm" placeholder="Search record..." />
-
-        <Button>
+      <template #action>
+        <BaseButton variant="ghost" @click="openCreate">
           <Plus class="mr-2 h-4 w-4" />
-
           Add Record
-        </Button>
-      </div>
+        </BaseButton>
+      </template>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
+      <div
+        class="overflow-hidden rounded-2xl border"
+        :style="{ borderColor: 'var(--border)' }"
+      >
+        <table class="w-full">
+          <thead
+            class="text-sm"
+            :style="{
+              background: 'var(--surface-2)',
+              color: 'var(--muted)',
+            }"
+          >
+            <tr>
+              <th class="px-5 py-4 text-left">Date</th>
+              <th class="px-5 py-4 text-left">Time</th>
+              <th class="px-5 py-4 text-left">Blood Pressure</th>
+              <th class="px-5 py-4 text-left">Pulse</th>
+              <th class="px-5 py-4 text-left">Status</th>
+              <th class="px-5 py-4 text-right">Action</th>
+            </tr>
+          </thead>
 
-            <TableHead>Time</TableHead>
+          <tbody>
+            <tr
+              v-for="bloodPressure in bloodPressures"
+              :key="bloodPressure.id"
+              class="border-t transition hover:bg-black/5 dark:hover:bg-white/5"
+              :style="{ borderColor: 'var(--border)' }"
+            >
+              <td class="px-5 py-4">
+                {{ new Date(bloodPressure.measured_at).toLocaleDateString() }}
+              </td>
 
-            <TableHead>Systolic</TableHead>
+              <td class="px-5 py-4">
+                {{
+                  new Date(bloodPressure.measured_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                }}
+              </td>
 
-            <TableHead>Diastolic</TableHead>
+              <td class="px-5 py-4 font-medium">
+                {{ bloodPressure.systolic }}/{{ bloodPressure.diastolic }} mmHg
+              </td>
 
-            <TableHead>Pulse</TableHead>
+              <td class="px-5 py-4">{{ bloodPressure.pulse }} bpm</td>
 
-            <TableHead>Status</TableHead>
+              <td class="px-5 py-4">
+                <span
+                  class="rounded-full bg-green-100 px-2 py-1 text-xs text-green-700"
+                >
+                  Normal
+                </span>
+              </td>
 
-            <TableHead class="text-right"> Action </TableHead>
-          </TableRow>
-        </TableHeader>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <BaseButton
+                    size="icon"
+                    variant="outline"
+                    @click="openEdit(bloodPressure)"
+                  >
+                    <Pencil class="h-4 w-4" />
+                  </BaseButton>
 
-        <TableBody>
-          <TableRow>
-            <TableCell>22 Jul 2026</TableCell>
+                  <BaseButton
+                    size="icon"
+                    variant="destructive"
+                    @click="openDeleteDialog(bloodPressure.id)"
+                  >
+                    <Trash2 class="h-4 w-4" />
+                  </BaseButton>
+                </div>
+              </td>
+            </tr>
 
-            <TableCell>08:15</TableCell>
-
-            <TableCell>118</TableCell>
-
-            <TableCell>78</TableCell>
-
-            <TableCell>74 bpm</TableCell>
-
-            <TableCell>
-              <span
-                class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-600"
+            <tr v-if="bloodPressures.length === 0">
+              <td
+                colspan="6"
+                class="px-5 py-8 text-center text-sm"
+                :style="{ color: 'var(--muted)' }"
               >
-                Normal
-              </span>
-            </TableCell>
-
-            <TableCell class="text-right space-x-2">
-              <Button size="sm" variant="outline"> Edit </Button>
-
-              <Button size="sm" variant="destructive"> Delete </Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+                No blood pressure records found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </BaseCard>
-
-    <!-- Bottom -->
-
-    <section class="grid gap-6 lg:grid-cols-12">
+    <!-- Chart -->
+    <ChartSkeleton v-if="loading" />
+    <section class="grid gap-6 lg:grid-cols-12" v-else>
       <BaseCard class="lg:col-span-8" title="Weekly Blood Pressure Trend">
         <div
           class="flex h-80 items-center justify-center rounded-2xl"
           :style="{ background: 'var(--surface-2)' }"
         >
-          <Chart/>
+          <Chart
+            :categories="chartData.categories"
+            :series="chartData.series"
+            suffix="mmHg"
+          />
         </div>
       </BaseCard>
-
       <BaseCard class="lg:col-span-4" title="Blood Pressure Guide">
         <div class="space-y-4">
-          <div
-            class="rounded-xl p-4"
-            :style="{ background: 'var(--primary-soft)' }"
-          >
-            ❤️ Normal
-            <br />
-            90–120 / 60–80 mmHg
-          </div>
-
           <div
             class="rounded-xl p-4"
             :style="{ background: 'var(--surface-2)' }"
@@ -231,4 +346,71 @@ import {
       </BaseCard>
     </section>
   </div>
+
+  <!-- dialog -->
+  <BaseDialog
+    v-model:open="showDialog"
+    :title="editMode ? 'Edit Blood Pressure' : 'Add Blood Pressure'"
+    description="Record your blood pressure measurement."
+  >
+    <div class="space-y-5">
+      <BaseFormField label="Systolic">
+        <BaseInput v-model="form.systolic" type="number" placeholder="120" />
+      </BaseFormField>
+
+      <BaseFormField label="Diastolic">
+        <BaseInput v-model="form.diastolic" type="number" placeholder="80" />
+      </BaseFormField>
+
+      <BaseFormField label="Pulse">
+        <BaseInput v-model="form.pulse" type="number" placeholder="70" />
+      </BaseFormField>
+
+      <BaseFormField label="Measured At">
+        <BaseInput v-model="form.measured_at" type="datetime-local" />
+      </BaseFormField>
+    </div>
+
+    <template #footer>
+      <div class="flex gap-3">
+        <BaseButton variant="outline" @click="showDialog = false">
+          Cancel
+        </BaseButton>
+
+        <BaseButton
+          :loading="isSaving"
+          :disabled="isSaving"
+          @click="handleSave"
+        >
+          {{ isSaving ? "Saving..." : editMode ? "Update" : "Save" }}
+        </BaseButton>
+      </div>
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    v-model:open="showDeleteDialog"
+    title="Delete Blood Pressure Record?"
+    description="This action cannot be undone."
+  >
+    <div
+      class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30"
+    >
+      <p class="font-medium text-red-600">
+        Are you sure you want to delete this blood pressure record?
+      </p>
+    </div>
+
+    <template #footer>
+      <div class="flex gap-3">
+        <BaseButton variant="outline" @click="showDeleteDialog = false">
+          Cancel
+        </BaseButton>
+
+        <BaseButton variant="destructive" @click="handleDelete">
+          Delete
+        </BaseButton>
+      </div>
+    </template>
+  </BaseDialog>
 </template>

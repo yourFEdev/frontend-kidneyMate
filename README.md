@@ -1,8 +1,3 @@
-> [!NOTE]
-> **Frontend Only**
->
-> This project currently contains the **frontend application only**. The backend API is still under development and will be integrated in a future release.
-
 # Kidney Matte
 
 ## Tech Stack
@@ -18,29 +13,15 @@
 
 ## Features
 
--  Dashboard & Analytics
--  Fluid Management
--  Interactive Charts
--  Search & Filtering
--  Data Tables
--  Fast Data Fetching
--  Modern Responsive UI
--  Clean Component-Based Architecture
+- Dashboard
+- Fluid Management
+- Interactive Charts
+- Data Tables
+- Fast Data Fetching
+- Modern Responsive UI
+- Clean Component-Based Architecture
 
 ---
-
-##  Status
-
-> **Work in Progress**
-
-- Frontend UI
-- Routing
-- State Management
-- Charts
-- Tables
-- Backend API (In Progress)
-- Authentication
-- Real-time Data Integration
 
 ## Getting Started
 
@@ -73,5 +54,3 @@ npm run dev
 ```bash
 npm run build
 ```
-
-

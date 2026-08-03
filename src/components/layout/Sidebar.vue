@@ -9,11 +9,34 @@ import {
   Settings,
   LogOut,
   Heart,
+  Weight,
 } from "lucide-vue-next";
 
 import SidebarItem from "./SidebarItem.vue";
 import { useLayoutStore } from "../../stores/layout.ts";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
+import { ref } from "vue";
+import { toast } from "vue-sonner";
 
+const router = useRouter();
+const auth = useAuthStore();
+
+const loggingOut = ref(false);
+
+async function handleLogout() {
+  if (loggingOut.value) return;
+
+  loggingOut.value = true;
+
+  try {
+    await auth.logout();
+    toast.success("Logout Successfully");
+    router.replace("/login");
+  } finally {
+    loggingOut.value = false;
+  }
+}
 const layout = useLayoutStore();
 
 const menus = [
@@ -26,19 +49,24 @@ const menus = [
         icon: LayoutDashboard,
       },
       {
-        title: "Fluid",
-        to: "/fluid",
-        icon: Droplets,
-      },
-      {
         title: "Blood Pressure",
         to: "/blood-pressure",
         icon: HeartPulse,
       },
       {
+        title: "Fluid",
+        to: "/fluid",
+        icon: Droplets,
+      },
+      {
         title: "Schedule",
         to: "/schedule",
         icon: CalendarDays,
+      },
+      {
+        title: "Weight",
+        to: "/weight",
+        icon: Weight,
       },
     ],
   },
@@ -154,18 +182,20 @@ const menus = [
     <!-- Footer -->
     <div class="border-t p-3" :style="{ borderColor: 'var(--border)' }">
       <button
-        class="cursor-pointer flex h-12 w-full items-center rounded-2xl transition-all hover:bg-red-50 dark:hover:bg-red-950/40"
+        @click="handleLogout"
+        class="flex h-12 w-full cursor-pointer items-center rounded-2xl transition-all hover:bg-red-50 dark:hover:bg-red-950/40"
         :class="layout.sidebarOpen ? 'justify-start px-4' : 'justify-center'"
         :style="{ color: '#ef4444' }"
       >
         <LogOut class="h-5 w-5 shrink-0" />
 
         <Transition name="fade">
-         
-           <router-link to="/login" v-if="layout.sidebarOpen" class="ml-3 font-medium text-[var(--muted)]">
-              Logout
-            </router-link>
-         
+          <span
+            v-if="layout.sidebarOpen"
+            class="ml-3 font-medium text-[var(--muted)]"
+          >
+            Logout
+          </span>
         </Transition>
       </button>
     </div>

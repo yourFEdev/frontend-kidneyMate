@@ -1,108 +1,125 @@
 <script setup lang="ts">
-import BaseCard from "../components/common/BaseCard.vue";
-import Chart from "../components/common/Chart.vue";
+import { BaseCard, BaseHeader } from "../components/common";
+import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
 
+import { useInsightStore } from "../stores/insight.store";
+
+const insightStore = useInsightStore();
+
+const { insight, loading } = storeToRefs(insightStore);
+
+import { StatSkeleton, HeaderSkeleton } from "../components/skeleton";
+
+onMounted(() => {
+  insightStore.getInsights();
+});
 </script>
 
 <template>
-  <div class="space-y-6 text-[var(--muted)]">
-    <section>
-      <h1 class="text-3xl font-bold" :style="{ color: 'var(--foreground)' }">
-        Insights
-      </h1>
-      <p class="mt-1" :style="{ color: 'var(--muted)' }">
-        Understand your health trends and dialysis progress.
-      </p>
-    </section>
-    <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+  <div v-if="!insight" class="space-y-8 text-[var(--muted)]">
+    <HeaderSkeleton v-if="loading" />
+    <BaseHeader
+      title="Insight"
+      subtitle="Understand your health trends and dialysis progress."
+      v-else
+    />
+    <StatSkeleton v-if="loading" />
+    <BaseCard
+      title="Not enough health data"
+      description="Add your blood pressure, fluid intake and weight records to receive personalized health insights."
+      v-else
+    />
+  </div>
+
+  <div class="space-y-8 text-[var(--muted)]" v-else>
+    <HeaderSkeleton v-if="loading" />
+    <BaseHeader
+      title="Insight"
+      subtitle="Understand your health trends and dialysis progress."
+      v-else
+    />
+    <StatSkeleton v-if="loading" />
+    <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4" v-else>
       <BaseCard title="Health Score">
         <div class="space-y-2">
-          <h2 class="text-5xl font-bold text-emerald-500">87</h2>
+          <h2
+            class="text-5xl font-bold text-emerald-500"
+            v-if="!loading && insight"
+          >
+            {{ insight.health_score }}
+          </h2>
+
+          <div
+            v-else
+            class="h-12 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+          />
           <p :style="{ color: 'var(--muted)' }">Excellent this week</p>
         </div>
       </BaseCard>
       <BaseCard title="Medication">
         <div class="space-y-2">
-          <h2 class="text-5xl font-bold text-blue-500">96%</h2>
+          <h2
+            class="text-5xl font-bold text-blue-500"
+            v-if="!loading && insight"
+          >
+            {{ insight.medication_adherence }}%
+          </h2>
+
+          <div
+            v-else
+            class="h-12 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+          />
           <p :style="{ color: 'var(--muted)' }">Adherence Rate</p>
         </div>
       </BaseCard>
       <BaseCard title="Fluid Goal">
         <div class="space-y-2">
-          <h2 class="text-5xl font-bold text-cyan-500">82%</h2>
+          <h2
+            class="text-5xl font-bold text-cyan-500"
+            v-if="!loading && insight"
+          >
+            {{ insight.fluid_goal }}%
+          </h2>
+
+          <div
+            v-else
+            class="h-12 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+          />
           <p :style="{ color: 'var(--muted)' }">Average Achievement</p>
         </div>
       </BaseCard>
       <BaseCard title="Blood Pressure">
         <div class="space-y-2">
-          <h2 class="text-5xl font-bold text-rose-500">Stable</h2>
+          <h2
+            class="text-5xl font-bold text-rose-500"
+            v-if="!loading && insight"
+          >
+            {{ insight.blood_pressure_status }}
+          </h2>
+
+          <div
+            v-else
+            class="h-12 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+          />
           <p :style="{ color: 'var(--muted)' }">Last 30 days</p>
         </div>
       </BaseCard>
     </section>
-    <BaseCard
-      title="Fluid Intake Trend"
-      description="Daily fluid intake over the last 30 days"
-    >
-      <div
-        class="h-80 rounded-2xl border border-dashed flex items-center justify-center"
-        :style="{ borderColor: 'var(--border)' }"
-      >
-        <Chart/>
-      </div>
-    </BaseCard>
-    <section class="grid gap-6 lg:grid-cols-2">
-      <BaseCard title="Blood Pressure Trend">
-        <div
-          class="h-72 rounded-xl border border-dashed flex items-center justify-center"
-          :style="{ borderColor: 'var(--border)' }"
-        >
-          Line Chart
-        </div>
-      </BaseCard>
-      <BaseCard title="Weight Trend">
-        <div
-          class="h-72 rounded-xl border border-dashed flex items-center justify-center"
-          :style="{ borderColor: 'var(--border)' }"
-        >
-          Line Chart
-        </div>
-      </BaseCard>
-    </section>
-    <section class="grid gap-6 lg:grid-cols-2">
-      <BaseCard title="Symptoms Overview">
-        <div
-          class="h-64 rounded-xl border border-dashed flex items-center justify-center"
-          :style="{ borderColor: 'var(--border)' }"
-        >
-          Pie Chart
-        </div>
-      </BaseCard>
-      <BaseCard title="Medication Consistency">
-        <div
-          class="h-64 rounded-xl border border-dashed flex items-center justify-center"
-          :style="{ borderColor: 'var(--border)' }"
-        >
-          Bar Chart
-        </div>
-      </BaseCard>
-    </section>
+    <StatSkeleton v-if="loading" />
     <BaseCard
       title="Health Summary"
       description="Generated from your recent health records"
+      \
+      v-else
     >
       <div
-        class="rounded-2xl p-6"
         :style="{
-          background: 'var(--muted-background)',
           color: 'var(--foreground)',
         }"
       >
-        <p class="leading-8">
-          Your blood pressure has remained stable over the past month. Fluid
-          intake is improving and medication adherence is excellent. Weight gain
-          between dialysis sessions is within the recommended range. Continue
-          maintaining your current routine.
+        <p v-if="!loading && insight">
+          {{ insight.summary }}
         </p>
       </div>
     </BaseCard>
